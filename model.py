@@ -2,14 +2,12 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from statsmodels.tsa.statespace.sarimax import SARIMAX
-from statsmodels.tsa.stattools import adfuller
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from sklearn.metrics import mean_absolute_error, mean_squared_error
-
-df = pd.read_csv("Grain_Prices_20250211.csv")
+from statsmodels.tsa.stattools import adfuller
 
 df = pd.read_csv("Grain_Prices_20250211.csv", parse_dates=['Date'], index_col='Date')
-df = df.sort_index()  # Make sure the data is sorted by Date
+df = df.sort_index()  
 
 print(df.info())
 print(df.describe())
@@ -24,11 +22,9 @@ plot_pacf(df['Bid'], lags=50)
 plt.show()
 
 df['Bid_diff'] = df['Bid'].diff().dropna()
-
 result = adfuller(df['Bid_diff'].dropna())
 print(f'ADF Statistic: {result[0]}')
 print(f'p-value: {result[1]}')
-
 
 model = SARIMAX(df['Bid'], 
                 order=(1, 1, 1),  # p, d, q
@@ -45,3 +41,17 @@ plt.show()
 
 forecast = results.get_forecast(steps=12)
 forecast_index = pd.date_range(start=df.index[-1], periods=13, freq='M')[1:]
+
+df_reset = df.reset_index()  
+bid_data = df_reset[['Date', 'Bid']]  
+bid_data['Date'] = pd.to_datetime(bid_data['Date'])
+
+df1 = bid_data.set_index('Date')
+monthly_sales = df1.resample('M').mean()
+
+plt.figure(figsize=(12, 6))
+plt.plot(monthly_sales['Bid'], linewidth=3, c='purple')
+plt.title("Grain Bids")
+plt.xlabel("Date")
+plt.ylabel("Bid")
+plt.show()
