@@ -11,26 +11,28 @@ df = pd.read_csv("Grain_Prices_20250211.csv")
 df = pd.read_csv("Grain_Prices_20250211.csv", parse_dates=['Date'], index_col='Date')
 df = df.sort_index()  # Make sure the data is sorted by Date
 
+bid=df['Bid']
+
 print(df.info())
 print(df.describe())
 
-result = adfuller(df['Bid'])
+result = adfuller(bid)
 print(f'ADF Statistic: {result[0]}')
 print(f'p-value: {result[1]}')
 
-plot_acf(df['Bid'], lags=50)
+plot_acf(bid, lags=50)
 plt.show()
-plot_pacf(df['Bid'], lags=50)
+plot_pacf(bid, lags=50)
 plt.show()
 
-df['Bid_diff'] = df['Bid'].diff().dropna()
+df['Bid_diff'] = bid.diff().dropna()
 
 result = adfuller(df['Bid_diff'].dropna())
 print(f'ADF Statistic: {result[0]}')
 print(f'p-value: {result[1]}')
 
 
-model = SARIMAX(df['Bid'], 
+model = SARIMAX(bid, 
                 order=(1, 1, 1),  # p, d, q
                 seasonal_order=(1, 1, 1, 12),  # P, D, Q, s
                 enforce_stationarity=False, 
