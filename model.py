@@ -82,7 +82,7 @@ plt.ylabel("Bid")
 plt.legend()
 plt.show()
 
-actuals = df['Bid'][-12:]  # Last 12 months as actuals (adjust based on your data)
+actuals = df['Bid'][-12:]  
 forecasted = forecast_mean
 
 mae = mean_absolute_error(actuals, forecasted)
